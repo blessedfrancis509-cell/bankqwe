@@ -1,0 +1,162 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+interface User {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: 'admin' | 'user';
+  photoURL?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  isAdmin: boolean;
+  userRole: 'admin' | 'user' | null;
+  signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, ssn: string, phone: string) => Promise<void>;
+  updateProfile: (data: { displayName?: string; photoURL?: string; phone?: string }) => Promise<void>;
+  resetPassword: (email: string, newPassword: string) => Promise<void>;
+  refreshUser: (uid: string) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  isAdmin: false,
+  userRole: null,
+  signOut: async () => {},
+  signIn: async () => {},
+  signUp: async () => {},
+  updateProfile: async () => {},
+  resetPassword: async () => {},
+  refreshUser: async () => {},
+});
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'user' | null>(null);
+
+  useEffect(() => {
+    // Check for saved user in localStorage
+    const savedUser = localStorage.getItem('new_age_user');
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        setUserRole(parsedUser.role);
+        setIsAdmin(parsedUser.role === 'admin');
+      } catch (err) {
+        console.error("Error parsing saved user:", err);
+        localStorage.removeItem('new_age_user');
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const signIn = async (email: string, password: string) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Login failed');
+    }
+
+    const { user: userData } = await response.json();
+    setUser(userData);
+    setUserRole(userData.role);
+    setIsAdmin(userData.role === 'admin');
+    localStorage.setItem('new_age_user', JSON.stringify(userData));
+  };
+
+  const signUp = async (email: string, password: string, name: string, ssn: string, phone: string) => {
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name, ssn, phone }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Signup failed');
+    }
+
+    const { user: userData } = await response.json();
+    setUser(userData);
+    setUserRole(userData.role);
+    setIsAdmin(userData.role === 'admin');
+    localStorage.setItem('new_age_user', JSON.stringify(userData));
+  };
+
+  const signOut = async () => {
+    setUser(null);
+    setUserRole(null);
+    setIsAdmin(false);
+    localStorage.removeItem('new_age_user');
+  };
+
+  const updateProfile = async (data: { displayName?: string; photoURL?: string; phone?: string }) => {
+    if (!user) return;
+    const response = await fetch('/api/auth/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid, ...data }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Update failed');
+    }
+
+    const { user: updatedUser } = await response.json();
+    setUser(updatedUser);
+    localStorage.setItem('new_age_user', JSON.stringify(updatedUser));
+  };
+
+  const resetPassword = async (email: string, newPassword: string) => {
+    const response = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, newPassword }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Password reset failed');
+    }
+  };
+
+  const refreshUser = async (uid: string) => {
+    try {
+      const res = await fetch('/api/admin/users');
+      if (res.ok) {
+        const users = await res.json();
+        const updated = users.find((u: any) => u.uid === uid);
+        if (updated) {
+          const { password, ssn, depositDetails, ...safeUser } = updated;
+          setUser(safeUser);
+          setUserRole(safeUser.role);
+          setIsAdmin(safeUser.role === 'admin');
+          localStorage.setItem('new_age_user', JSON.stringify(safeUser));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to refresh user data:", err);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, isAdmin, userRole, signOut, signIn, signUp, updateProfile, resetPassword, refreshUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
