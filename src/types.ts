@@ -1,4 +1,5 @@
 
+// Types for the banking platform
 export interface Account {
   id: string;
   type: string;
