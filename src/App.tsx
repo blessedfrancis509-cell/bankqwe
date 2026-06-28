@@ -112,7 +112,6 @@ export default function App() {
       alert('Premium profile image limit is 5MB.');
       return;
     }
-    return;
     
     const reader = new FileReader();
     reader.onload = () => {
@@ -439,7 +438,7 @@ export default function App() {
               <section className="col-span-12 lg:col-span-8 space-y-6 lg:space-y-8">
                 {/* Credit Cards / Accounts Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {accounts.slice(0, 4).map((acc, idx) => (
+                  {accounts.slice(0, 2).map((acc, idx) => (
                     <BalanceCard 
                       key={acc.id} 
                       account={acc} 

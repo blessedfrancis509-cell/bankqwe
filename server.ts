@@ -281,13 +281,15 @@ function loadDb() {
     const adminUser = users.find(u => u.email === 'admin1234@gmail.com');
     if (adminUser) {
       adminUser.password = 'admin1234';
+      if (!adminUser.createdAt) adminUser.createdAt = new Date().toISOString();
     } else {
       users.push({
         uid: 'user_1',
         email: 'admin1234@gmail.com',
         displayName: 'John Pastor',
         role: 'admin',
-        password: 'admin1234'
+        password: 'admin1234',
+        createdAt: new Date().toISOString()
       });
     }
     saveDb();
@@ -338,7 +340,8 @@ async function startServer() {
       role: email === 'admin1234@gmail.com' ? 'admin' : 'user',
       ssn,
       phone,
-      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      createdAt: new Date().toISOString()
     };
     users.push(newUser);
 
@@ -430,7 +433,8 @@ async function startServer() {
       role: role || 'user',
       ssn: ssn || '',
       phone: phone || '',
-      photoURL: photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`
+      photoURL: photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      createdAt: new Date().toISOString()
     };
     users.push(newUser);
 

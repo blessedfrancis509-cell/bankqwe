@@ -58,6 +58,7 @@ export interface User {
   photoURL?: string;
   role: 'admin' | 'user';
   phone?: string;
+  createdAt?: string;
   depositDetails?: {
     paypal?: string;
     cashapp?: string;
