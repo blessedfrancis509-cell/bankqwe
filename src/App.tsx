@@ -22,7 +22,19 @@ import {
   HardDrive,
   Upload,
   X,
-  Lock
+  Lock,
+  Star,
+  ShieldCheck,
+  CreditCard,
+  Users,
+  Key,
+  Bell,
+  Globe,
+  FileText,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowUpRight
 } from 'lucide-react';
 import { api } from './services/api';
 import { Account, Transaction, Bill, User, BankCard } from './types';
@@ -69,6 +81,7 @@ export default function App() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [resetPassEmail, setResetPassEmail] = useState(user?.email || '');
   const [newPass, setNewPass] = useState('');
+  const [showSsn, setShowSsn] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -99,6 +112,7 @@ export default function App() {
       alert('Premium profile image limit is 5MB.');
       return;
     }
+    return;
     
     const reader = new FileReader();
     reader.onload = () => {
@@ -140,6 +154,44 @@ export default function App() {
       alert(err.message);
     }
   };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatShortDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const maskSsn = (ssn?: string) => {
+    if (!ssn) return 'Not on file';
+    if (showSsn) return ssn;
+    const parts = ssn.split('-');
+    if (parts.length === 3) return `***-**-${parts[2]}`;
+    return '***-**';
+  };
+
+  const getAccountTier = (user: any) => {
+    if (user?.role === 'admin') return { label: 'Executive Administrator', color: 'text-amber-600 bg-amber-50 border-amber-200', icon: StarIcon };
+    const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
+    if (totalBalance >= 100000) return { label: 'Private Wealth Client', color: 'text-emerald-600 bg-emerald-50 border-emerald-200', icon: ShieldCheck };
+    if (totalBalance >= 50000) return { label: 'Premium Elite', color: 'text-blue-600 bg-blue-50 border-blue-200', icon: CreditCard };
+    return { label: 'Standard Member', color: 'text-slate-600 bg-slate-50 border-slate-200', icon: Users };
+  };
+
+  const accountTier = getAccountTier(user);
 
   const handlePayBill = (billId: string) => {
     const bill = bills.find(b => b.id === billId);
@@ -642,14 +694,17 @@ export default function App() {
             </motion.div>
           )}
 
-          {activeTab === 'settings' && (
+{activeTab === 'settings' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="max-w-3xl mx-auto"
+              className="max-w-5xl mx-auto"
             >
                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-3xl font-bold tracking-tight text-slate-800">Preferences</h2>
+                  <div>
+                     <h2 className="text-3xl font-bold tracking-tight text-slate-800">Account Settings</h2>
+                     <p className="text-slate-500 mt-1">Manage your profile, security, and banking preferences</p>
+                  </div>
                   <button 
                     onClick={signOut}
                     className="flex items-center gap-2 px-4 py-2 border border-slate-200 hover:border-red-200 text-slate-600 hover:text-red-600 hover:bg-red-50 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm"
@@ -658,9 +713,44 @@ export default function App() {
                     <span>Sign Out</span>
                   </button>
                </div>
-               <div className="space-y-8">
+<div className="space-y-8">
+                   {/* Membership Status & Account Overview */}
+                   <div className="sleek-card bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 border-slate-700">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 p-2">
+                         <div className="flex items-center gap-4">
+                            <div className={`w-16 h-16 rounded-2xl border-2 flex items-center justify-center ${accountTier.color.replace('bg-', 'bg-').replace('text-', 'text-').replace('border-', 'border-')} shadow-lg`}>
+                               {(() => { const Icon = accountTier.icon; return <Icon size={28} className={accountTier.color.replace('bg-', '').replace('text-', '').replace('border-', '')} /> })()}
+                            </div>
+                            <div>
+                               <p className="text-white font-bold text-xl">{user?.displayName || 'Member'}</p>
+                               <p className={`text-white/80 text-sm font-medium ${accountTier.color.replace('bg-', 'text-').replace('text-', '').replace('border-', '')}`}>{accountTier.label}</p>
+                               <p className="text-white/60 text-xs mt-1">Member since {formatShortDate(user?.createdAt)}</p>
+                            </div>
+                         </div>
+                        <div className="flex flex-wrap items-center gap-4">
+                           <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 text-center min-w-[140px]">
+                              <p className="text-white/60 text-xs font-bold uppercase tracking-wider">Membership ID</p>
+                              <p className="text-white font-mono text-sm font-bold">{user?.uid?.slice(0, 12)}...</p>
+                           </div>
+                           <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 text-center min-w-[140px]">
+                              <p className="text-white/60 text-xs font-bold uppercase tracking-wider">Account Status</p>
+                              <p className="text-emerald-400 font-bold text-sm uppercase tracking-wide flex items-center gap-1 justify-center">
+                                 <CheckCircle2 size={12} /> Active
+                              </p>
+                           </div>
+                           <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 text-center min-w-[140px]">
+                              <p className="text-white/60 text-xs font-bold uppercase tracking-wider">Total Assets</p>
+                              <p className="text-white font-bold text-lg">${accounts.reduce((sum, a) => sum + a.balance, 0).toLocaleString()}</p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Personal Details */}
                   <div className="sleek-card">
-                     <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-8 text-blue-900 uppercase tracking-tighter">Executive Personal Details</h3>
+                     <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-8 text-blue-900 uppercase tracking-tighter flex items-center gap-2">
+                        <User size={18} className="text-blue-600" /> Personal Details
+                     </h3>
                      <div className="flex flex-col sm:flex-row items-center gap-8 mb-10">
                         <div 
                           onDragOver={handleDragOver}
@@ -706,7 +796,9 @@ export default function App() {
                            <p className="text-lg font-bold text-slate-800 capitalize">{user?.displayName || 'Member'}</p>
                            <p className="text-sm text-slate-500">{isAdmin ? 'Executive Administrator' : 'Premium Member'}</p>
                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3">
-                             <button onClick={() => alert('Membership ID: ' + user?.uid)} className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline">Membership Info</button>
+                             <button onClick={() => setShowSsn(!showSsn)} className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                                <Key size={10} /> {showSsn ? 'Hide' : 'Show'} SSN
+                             </button>
                              <span className="text-slate-300">|</span>
                              <button 
                                onClick={(e) => {
@@ -721,34 +813,54 @@ export default function App() {
                            </div>
                         </div>
                      </div>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="space-y-2">
                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Display Name</label>
                            <input 
                              type="text" 
                              value={editName} 
                              onChange={(e) => setEditName(e.target.value)}
-                             className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white transition-all" 
+                             className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white focus:border-indigo-400 transition-all" 
                            />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Phone Link</label>
-                          <input 
-                            type="tel" 
-                            value={editPhone} 
-                            onChange={(e) => setEditPhone(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white transition-all" 
-                          />
+                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Phone Number</label>
+                           <input 
+                             type="tel" 
+                             value={editPhone} 
+                             onChange={(e) => setEditPhone(e.target.value)}
+                             className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white focus:border-indigo-400 transition-all" 
+                           />
                         </div>
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Photo URL</label>
-                          <input 
-                            type="text" 
-                            value={editPhoto} 
-                            onChange={(e) => setEditPhoto(e.target.value)}
-                            placeholder="Direct image link"
-                            className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white transition-all" 
-                          />
+                        <div className="space-y-2">
+                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</label>
+                           <input 
+                             type="email" 
+                             value={user?.email || ''} 
+                             readOnly
+                             className="w-full bg-slate-100 border border-slate-200 p-3 rounded-xl font-semibold text-slate-600 cursor-not-allowed" 
+                           />
+                        </div>
+                        <div className="space-y-2">
+                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">SSN (Last 4)</label>
+                           <div className="flex items-center gap-2">
+                             <input 
+                               type="text" 
+                               value={maskSsn(user?.ssn)} 
+                               readOnly
+                               className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold font-mono outline-none flex-1" 
+                             />
+                           </div>
+                        </div>
+                        <div className="space-y-2 sm:col-span-2 lg:col-span-3">
+                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Photo URL</label>
+                           <input 
+                             type="text" 
+                             value={editPhoto} 
+                             onChange={(e) => setEditPhoto(e.target.value)}
+                             placeholder="Direct image link"
+                             className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white focus:border-indigo-400 transition-all" 
+                           />
                         </div>
                      </div>
                      <button 
@@ -760,8 +872,80 @@ export default function App() {
                      </button>
                   </div>
 
+                  {/* Account Information */}
                   <div className="sleek-card">
-                     <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-6 uppercase tracking-widest text-[11px] text-red-600">Executive Security Protocol</h3>
+                     <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-8 text-emerald-900 uppercase tracking-tighter flex items-center gap-2">
+                        <ShieldCheck size={18} className="text-emerald-600" /> Account Information
+                     </h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="space-y-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                           <label className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Account Created</label>
+                           <p className="font-bold text-slate-800">{formatDate(user?.createdAt)}</p>
+                        </div>
+                        <div className="space-y-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                           <label className="text-xs font-bold text-blue-700 uppercase tracking-wider">Account Type</label>
+                           <p className="font-bold text-slate-800">{isAdmin ? 'Administrative / Executive' : 'Personal Banking'}</p>
+                        </div>
+                        <div className="space-y-2 p-4 bg-amber-50 rounded-xl border border-amber-100">
+                           <label className="text-xs font-bold text-amber-700 uppercase tracking-wider">Membership Tier</label>
+                           <p className="font-bold text-slate-800">{accountTier.label}</p>
+                        </div>
+                        <div className="space-y-2 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                           <label className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Member ID</label>
+                           <p className="font-bold text-slate-800 font-mono text-sm">{user?.uid?.slice(0, 16)}...</p>
+                        </div>
+                     </div>
+                     <div className="mt-8 divide-y divide-slate-100">
+                        <div className="py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                                 <FileText size={20} className="text-slate-500" />
+                              </div>
+                              <div>
+                                 <p className="font-bold text-slate-800">Account Documents</p>
+                                 <p className="text-xs text-slate-500">View statements, tax forms & agreements</p>
+                              </div>
+                           </div>
+                           <button className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                              <ArrowUpRight size={12} /> View Documents
+                           </button>
+                        </div>
+                        <div className="py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                                 <Globe size={20} className="text-slate-500" />
+                              </div>
+                              <div>
+                                 <p className="font-bold text-slate-800">Regulatory & Compliance</p>
+                                 <p className="text-xs text-slate-500">FDIC insured, privacy policy, terms of service</p>
+                              </div>
+                           </div>
+                           <button className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                              <ArrowUpRight size={12} /> View Details
+                           </button>
+                        </div>
+                        <div className="py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                                 <Clock size={20} className="text-slate-500" />
+                              </div>
+                              <div>
+                                 <p className="font-bold text-slate-800">Session & Activity</p>
+                                 <p className="text-xs text-slate-500">Review login history & active sessions</p>
+                              </div>
+                           </div>
+                           <button className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                              <ArrowUpRight size={12} /> View History
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Security Settings */}
+                  <div className="sleek-card">
+                     <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-8 text-red-600 uppercase tracking-tighter flex items-center gap-2">
+                        <Lock size={18} className="text-red-600" /> Security Center
+                     </h3>
                      <div className="divide-y divide-slate-100">
                         <div className="py-6">
                            <div className="flex items-center justify-between mb-4">
@@ -777,7 +961,7 @@ export default function App() {
                                  value={newPass}
                                  onChange={(e) => setNewPass(e.target.value)}
                                  placeholder="New Security Credential"
-                                 className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold font-mono outline-none focus:bg-white transition-all"
+                                 className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold font-mono outline-none focus:bg-white focus:border-indigo-400 transition-all"
                                />
                               <button 
                                  onClick={handleResetPass}
@@ -796,6 +980,24 @@ export default function App() {
                               <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
                            </div>
                         </div>
+                        <div className="py-6 flex items-center justify-between">
+                           <div>
+                              <p className="font-bold text-slate-800">Security Questions</p>
+                              <p className="text-xs text-slate-500">Set up recovery questions for account recovery.</p>
+                           </div>
+                           <button className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline">
+                              Configure
+                           </button>
+                        </div>
+                        <div className="py-6 flex items-center justify-between">
+                           <div>
+                              <p className="font-bold text-slate-800">Login Alerts</p>
+                              <p className="text-xs text-slate-500">Get notified of new logins from unknown devices.</p>
+                           </div>
+                           <div className="w-12 h-6 bg-indigo-600 rounded-full relative cursor-pointer shadow-inner">
+                              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                           </div>
+                        </div>
                         <div className="py-6">
                            <div className="flex flex-col gap-2">
                               <p className="font-bold text-indigo-900 uppercase tracking-tight text-xs">Sovereign 30-Day Storage & Ledger Policy</p>
@@ -808,6 +1010,51 @@ export default function App() {
                            </div>
                            <div className="mt-4.5 inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-xl text-[10px] font-black uppercase tracking-wider">
                               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> 30-Day Storage Cycle Enforced (Active)
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Communication Preferences */}
+                  <div className="sleek-card">
+                     <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-8 text-amber-900 uppercase tracking-tighter flex items-center gap-2">
+                        <Bell size={18} className="text-amber-600" /> Communication Preferences
+                     </h3>
+                     <div className="divide-y divide-slate-100">
+                        <div className="py-6 flex items-center justify-between">
+                           <div>
+                              <p className="font-bold text-slate-800">Email Notifications</p>
+                              <p className="text-xs text-slate-500">Receive transaction alerts, statements & updates via email</p>
+                           </div>
+                           <div className="w-12 h-6 bg-indigo-600 rounded-full relative cursor-pointer shadow-inner">
+                              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                           </div>
+                        </div>
+                        <div className="py-6 flex items-center justify-between">
+                           <div>
+                              <p className="font-bold text-slate-800">SMS Alerts</p>
+                              <p className="text-xs text-slate-500">Get critical security alerts via text message</p>
+                           </div>
+                           <div className="w-12 h-6 bg-slate-300 rounded-full relative cursor-pointer shadow-inner">
+                              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                           </div>
+                        </div>
+                        <div className="py-6 flex items-center justify-between">
+                           <div>
+                              <p className="font-bold text-slate-800">Push Notifications</p>
+                              <p className="text-xs text-slate-500">Real-time app notifications for account activity</p>
+                           </div>
+                           <div className="w-12 h-6 bg-indigo-600 rounded-full relative cursor-pointer shadow-inner">
+                              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                           </div>
+                        </div>
+                        <div className="py-6 flex items-center justify-between">
+                           <div>
+                              <p className="font-bold text-slate-800">Marketing Communications</p>
+                              <p className="text-xs text-slate-500">Offers, product updates & financial insights</p>
+                           </div>
+                           <div className="w-12 h-6 bg-slate-300 rounded-full relative cursor-pointer shadow-inner">
+                              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
                            </div>
                         </div>
                      </div>
