@@ -1,20 +1,23 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { CreditCard, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { CreditCard, ArrowUpRight, ArrowDownLeft, Flag } from 'lucide-react';
 import { Account } from '../../types';
 
 interface BalanceCardProps {
   account: Account;
+  allAccounts?: Account[]; // All user accounts for cross-flagging
   isActive?: boolean;
   onClick?: () => void;
   onSend?: (e: React.MouseEvent) => void;
   onAdd?: (e: React.MouseEvent) => void;
 }
 
-export const BalanceCard: React.FC<BalanceCardProps> = ({ account, isActive, onClick, onSend, onAdd }) => {
+export const BalanceCard: React.FC<BalanceCardProps> = ({ account, allAccounts = [], isActive, onClick, onSend, onAdd }) => {
   const isDisabled = account.status === 'disabled';
-  const isFlagged = account.flagged;
+  // Show flagged if THIS account is flagged OR if ANY user account is flagged
+  const anyAccountFlagged = allAccounts.some(a => a.flagged);
+  const isFlagged = account.flagged || anyAccountFlagged;
   const hasWarning = isDisabled || isFlagged;
 
   return (

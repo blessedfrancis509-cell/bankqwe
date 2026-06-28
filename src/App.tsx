@@ -441,7 +441,8 @@ export default function App() {
                   {accounts.slice(0, 2).map((acc, idx) => (
                     <BalanceCard 
                       key={acc.id} 
-                      account={acc} 
+                      account={acc}
+                      allAccounts={accounts}
                       onSend={() => setActiveTab('transfers')}
                       onAdd={() => setIsDepositModalOpen(true)}
                     />
