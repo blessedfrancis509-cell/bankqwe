@@ -6,6 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
+if (!process.env.NODE_ENV) process.env.NODE_ENV = 'production';
 
 interface User {
   uid: string;
