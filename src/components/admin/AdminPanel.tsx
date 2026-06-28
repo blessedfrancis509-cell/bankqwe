@@ -993,22 +993,10 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
                     </div>
                   </div>
                 </div>
-              </div>
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Override Credit Limit</label>
-                      <input 
-                        type="number"
-                        value={newCredit}
-                        onChange={(e) => setNewCredit(e.target.value)}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-850 text-xs text-slate-800"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
               <button onClick={handleUpdateAccount} className="w-full sleek-button-primary mt-6">
                 Apply Ledger Settings Override
               </button>
+              </div>
             </div>
 
             {/* Owner Master Credentials Overwrites Form */}
