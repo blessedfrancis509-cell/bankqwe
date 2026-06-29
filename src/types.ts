@@ -52,7 +52,7 @@ export interface SupportMessage {
   status: 'open' | 'resolved';
 }
 
-export interface User {
+export interface AppUser {
   uid: string;
   displayName: string;
   email: string;

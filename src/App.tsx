@@ -37,7 +37,7 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { api } from './services/api';
-import { Account, Transaction, Bill, User, BankCard } from './types/index';
+import { Account, Transaction, Bill, AppUser, BankCard } from './types';
 import { BalanceCard } from './components/dashboard/BalanceCard';
 import { TransactionList } from './components/dashboard/TransactionList';
 import { ExecutiveAdvisor } from './components/ai/ExecutiveAdvisor';

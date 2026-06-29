@@ -20,7 +20,7 @@ import {
   Pencil,
   Flag
 } from 'lucide-react';
-import { Account, SupportMessage, User } from '../../types';
+import { Account, SupportMessage, AppUser } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface AdminMetrics {
@@ -40,7 +40,7 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState<'overview' | 'accounts' | 'transactions' | 'bills' | 'approvals' | 'messages'>('overview');
 
-  const [usersList, setUsersList] = useState<User[]>([]);
+  const [usersList, setUsersList] = useState<AppUser[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [userSortField, setUserSortField] = useState<'name' | 'email' | 'uid' | 'balance' | 'role'>('name');
   const [userSortOrder, setUserSortOrder] = useState<'asc' | 'desc'>('asc');

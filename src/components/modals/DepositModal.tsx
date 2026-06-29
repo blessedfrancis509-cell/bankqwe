@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Copy, Check, DollarSign, Wallet, QrCode } from 'lucide-react';
-import { User, Account } from '../../types';
+import { AppUser, Account } from '../../types';
 
 interface DepositModalProps {
-  user: User;
+  user: AppUser;
   accounts: Account[];
   onClose: () => void;
   onSuccess: () => void;
@@ -12,7 +12,7 @@ interface DepositModalProps {
 
 export const DepositModal: React.FC<DepositModalProps> = ({ user, accounts, onClose, onSuccess }) => {
   const [copied, setCopied] = useState<string | null>(null);
-  const [details, setDetails] = useState<User['depositDetails']>(null);
+  const [details, setDetails] = useState<AppUser['depositDetails']>(null);
   const [loading, setLoading] = useState(true);
   const [amount, setAmount] = useState('');
   const [targetAccountId, setTargetAccountId] = useState(accounts[0]?.id || '');
