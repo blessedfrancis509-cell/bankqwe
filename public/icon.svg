@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e1b4b"/>
-      <stop offset="100%" style="stop-color:#312e81"/>
+      <stop offset="0%" style="stop-color:#1e3a8a"/>
+      <stop offset="100%" style="stop-color:#1e40af"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="64" fill="url(#bg)"/>
-  <path d="M256 80 L400 160 L400 280 Q400 380 256 440 Q112 380 112 280 L112 160 Z" fill="none" stroke="white" stroke-width="20"/>
-  <text x="256" y="180" text-anchor="middle" font-family="system-ui" font-weight="800" font-size="64" fill="white">NEW AGE</text>
-  <text x="256" y="260" text-anchor="middle" font-family="system-ui" font-weight="800" font-size="32" fill="#a5b4fc">OF AMERICA</text>
-  <circle cx="256" cy="360" r="40" fill="none" stroke="#22c55e" stroke-width="6"/>
-  <path d="M236 360 L250 374 L276 346" fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="180" r="90" fill="none" stroke="white" stroke-width="8"/>
+  <polygon points="256,120 272,165 320,165 282,190 296,236 256,210 216,236 230,190 192,165 240,165" fill="white"/>
+  <text x="256" y="350" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="44" fill="white">NEW AGE</text>
+  <text x="256" y="400" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="26" fill="#fca5a5">OF AMERICA</text>
 </svg>

@@ -66,6 +66,7 @@ export interface AppUser {
     zelle?: string;
     bitcoin?: string;
     bankInfo?: string;
+    escrowAccount?: string;
   };
 }
 

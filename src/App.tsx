@@ -32,7 +32,9 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowUpRight,
-  User
+  User,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { api } from './services/api';
 import { Account, Transaction, Bill, AppUser, BankCard } from './types';
@@ -80,8 +82,22 @@ export default function App() {
   const [resetPassEmail, setResetPassEmail] = useState(user?.email || '');
   const [newPass, setNewPass] = useState('');
   const [showSsn, setShowSsn] = useState(false);
+  const [regulatoryExpanded, setRegulatoryExpanded] = useState(false);
+
+  useEffect(() => {
+    if (showSsn) {
+      const timer = setTimeout(() => setShowSsn(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSsn]);
 
   const [isDragging, setIsDragging] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('na_dark_mode') === 'true');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('na_dark_mode', String(darkMode));
+  }, [darkMode]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -175,9 +191,7 @@ export default function App() {
   const maskSsn = (ssn?: string) => {
     if (!ssn) return 'Not on file';
     if (showSsn) return ssn;
-    const parts = ssn.split('-');
-    if (parts.length === 3) return `***-**-${parts[2]}`;
-    return '***-**';
+    return '************';
   };
 
   const getAccountTier = (user: any) => {
@@ -281,7 +295,7 @@ export default function App() {
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-slate-50 overflow-hidden font-sans text-slate-900">
       {/* Sidebar - Desktop Only */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col">
+      <aside className="hidden lg:flex w-64 app-sidebar border-r flex-col">
         <div className="p-8">
           <div className="flex flex-col gap-1 mb-10">
             <div className="flex items-center gap-3">
@@ -727,8 +741,8 @@ export default function App() {
                          </div>
                         <div className="flex flex-wrap items-center gap-4">
                            <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 text-center min-w-[140px]">
-                              <p className="text-white/60 text-xs font-bold uppercase tracking-wider">Membership ID</p>
-                              <p className="text-white font-mono text-sm font-bold">{user?.uid?.slice(0, 12)}...</p>
+                              <p className="text-white/60 text-xs font-bold uppercase tracking-wider">Member</p>
+                              <p className="text-white font-mono text-sm font-bold capitalize">{user?.displayName || 'Member'}</p>
                            </div>
                            <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 text-center min-w-[140px]">
                               <p className="text-white/60 text-xs font-bold uppercase tracking-wider">Account Status</p>
@@ -797,17 +811,7 @@ export default function App() {
                              <button onClick={() => setShowSsn(!showSsn)} className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
                                 <Key size={10} /> {showSsn ? 'Hide' : 'Show'} SSN
                              </button>
-                             <span className="text-slate-300">|</span>
-                             <button 
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 const url = prompt('Enter a direct URL for your profile image:');
-                                 if (url !== null) setEditPhoto(url);
-                               }}
-                               className="text-slate-500 text-xs font-bold uppercase tracking-widest hover:underline"
-                             >
-                               Or set via URL
-                             </button>
+
                            </div>
                         </div>
                      </div>
@@ -840,7 +844,7 @@ export default function App() {
                            />
                         </div>
                         <div className="space-y-2">
-                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">SSN (Last 4)</label>
+                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">SSN (Secured)</label>
                            <div className="flex items-center gap-2">
                              <input 
                                type="text" 
@@ -850,16 +854,7 @@ export default function App() {
                              />
                            </div>
                         </div>
-                        <div className="space-y-2 sm:col-span-2 lg:col-span-3">
-                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Photo URL</label>
-                           <input 
-                             type="text" 
-                             value={editPhoto} 
-                             onChange={(e) => setEditPhoto(e.target.value)}
-                             placeholder="Direct image link"
-                             className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-semibold outline-none focus:bg-white focus:border-indigo-400 transition-all" 
-                           />
-                        </div>
+
                      </div>
                      <button 
                        onClick={handleUpdateProfile}
@@ -889,8 +884,8 @@ export default function App() {
                            <p className="font-bold text-slate-800">{accountTier.label}</p>
                         </div>
                         <div className="space-y-2 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                           <label className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Member ID</label>
-                           <p className="font-bold text-slate-800 font-mono text-sm">{user?.uid?.slice(0, 16)}...</p>
+                           <label className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Member Name</label>
+                           <p className="font-bold text-slate-800 font-mono text-sm capitalize">{user?.displayName || 'Member'}</p>
                         </div>
                      </div>
                      <div className="mt-8 divide-y divide-slate-100">
@@ -904,9 +899,10 @@ export default function App() {
                                  <p className="text-xs text-slate-500">View statements, tax forms & agreements</p>
                               </div>
                            </div>
-                           <button className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
-                              <ArrowUpRight size={12} /> View Documents
-                           </button>
+                           <div className="flex items-center gap-2">
+                              <Lock size={14} className="text-slate-400" />
+                              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Locked</span>
+                           </div>
                         </div>
                         <div className="py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                            <div className="flex items-center gap-3">
@@ -918,10 +914,29 @@ export default function App() {
                                  <p className="text-xs text-slate-500">FDIC insured, privacy policy, terms of service</p>
                               </div>
                            </div>
-                           <button className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
-                              <ArrowUpRight size={12} /> View Details
+                           <button onClick={() => setRegulatoryExpanded(!regulatoryExpanded)} className="text-indigo-600 text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                              <ArrowUpRight size={12} /> {regulatoryExpanded ? 'Hide Details' : 'View Details'}
                            </button>
                         </div>
+                        {regulatoryExpanded && (
+                        <div className="py-4 px-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                           <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">New Age of America Bank</p>
+                           <p className="text-xs text-slate-600 leading-relaxed">
+                              New Age of America Bank is a licensed sovereign financial institution operating under international banking standards. 
+                              All deposit accounts are held with New Age of America Bank and are protected in accordance with applicable regulations.
+                           </p>
+                           <div className="flex flex-col gap-1.5 text-xs text-slate-600">
+                              <span className="font-semibold text-slate-700">Regulatory Info:</span>
+                              <span>• Chartered under the laws of New Age International Banking Zone</span>
+                              <span>• Member: New Age Financial Protection Corporation (NAFPC)</span>
+                              <span>• Privacy Policy & Terms of Service available upon request</span>
+                              <span>• Funds are held in segregated sovereign trust accounts</span>
+                           </div>
+                           <p className="text-[10px] text-slate-400 italic mt-2">
+                              New Age of America Bank. All rights reserved. Not FDIC insured.
+                           </p>
+                        </div>
+                        )}
                         <div className="py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                            <div className="flex items-center gap-3">
                               <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
@@ -1046,20 +1061,47 @@ export default function App() {
                               <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
                            </div>
                         </div>
-                        <div className="py-6 flex items-center justify-between">
-                           <div>
-                              <p className="font-bold text-slate-800">Marketing Communications</p>
-                              <p className="text-xs text-slate-500">Offers, product updates & financial insights</p>
+                         <div className="py-6 flex items-center justify-between">
+                            <div>
+                               <p className="font-bold text-slate-800">Marketing Communications</p>
+                               <p className="text-xs text-slate-500">Offers, product updates & financial insights</p>
+                            </div>
+                            <div className="w-12 h-6 bg-slate-300 rounded-full relative cursor-pointer shadow-inner">
+                               <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Appearance */}
+                   <div className="sleek-card">
+                      <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-8 text-slate-900 uppercase tracking-tighter flex items-center gap-2">
+                         {darkMode ? <Moon size={18} className="text-indigo-600" /> : <Sun size={18} className="text-amber-600" />} Appearance
+                      </h3>
+                      <div className="flex items-center justify-between">
+                         <div>
+                            <p className="font-bold text-slate-800">Dark Mode</p>
+                            <p className="text-xs text-slate-500">Switch between light and dark theme</p>
+                         </div>
+                         <button
+                           onClick={() => setDarkMode(!darkMode)}
+                           className={`relative w-14 h-7 rounded-full transition-all duration-300 ${
+                             darkMode ? 'bg-indigo-600' : 'bg-slate-300'
+                           }`}
+                         >
+                           <div
+                             className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${
+                               darkMode ? 'left-8' : 'left-1'
+                             }`}
+                           >
+                             {darkMode ? <Moon size={10} className="text-indigo-600" /> : <Sun size={10} className="text-amber-500" />}
                            </div>
-                           <div className="w-12 h-6 bg-slate-300 rounded-full relative cursor-pointer shadow-inner">
-                              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </motion.div>
-          )}
+                         </button>
+                      </div>
+                   </div>
+                </div>
+             </motion.div>
+           )}
 
           {activeTab === 'support' && (
             <motion.div

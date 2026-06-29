@@ -63,6 +63,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({ user, accounts, onCl
     { id: 'zelle', name: 'Zelle', value: details?.zelle, icon: <DollarSign size={20} /> },
     { id: 'bitcoin', name: 'Bitcoin (BTC)', value: details?.bitcoin, icon: <QrCode size={20} /> },
     { id: 'bankInfo', name: 'Wire Transfer / Bank Account', value: details?.bankInfo, icon: <Wallet size={20} /> },
+    { id: 'escrowAccount', name: 'Deposit Escrow Account', value: details?.escrowAccount, icon: <Wallet size={20} /> },
   ].filter(m => m.value);
 
   return (

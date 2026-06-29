@@ -69,7 +69,8 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
           cashapp: ca, 
           zelle: zl, 
           bitcoin: bc, 
-          bankInfo: bi 
+          bankInfo: bi,
+          escrowAccount: ea 
         })
       });
       if (!res.ok) throw new Error('Update failed');
@@ -224,6 +225,7 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
   const [zl, setZl] = useState('');
   const [bc, setBc] = useState('');
   const [bi, setBi] = useState('');
+  const [ea, setEa] = useState('');
 
   // Manual User Insertion States
   const [newUserEmail, setNewUserEmail] = useState('');
@@ -300,6 +302,7 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
           setZl(dData.zelle || '');
           setBc(dData.bitcoin || '');
           setBi(dData.bankInfo || '');
+          setEa(dData.escrowAccount || '');
         }
       }
       // Also fetch support messages in parallel
@@ -1212,7 +1215,12 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
                      value={bc} onChange={e => setBc(e.target.value)}
                      className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs outline-none focus:bg-white/10 text-white font-semibold"
                   />
-                  <textarea 
+                   <input 
+                     placeholder="Deposit Escrow Account Number" 
+                     value={ea} onChange={e => setEa(e.target.value)}
+                     className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs outline-none focus:bg-white/10 text-white font-semibold"
+                   />
+                   <textarea 
                      placeholder="Bank Wire Details (ACH/Routing)" 
                      value={bi} onChange={e => setBi(e.target.value)}
                      className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs outline-none focus:bg-white/10 h-20 text-white font-semibold resize-none"

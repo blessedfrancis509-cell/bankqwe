@@ -23,6 +23,7 @@ interface User {
     zelle?: string;
     bitcoin?: string;
     bankInfo?: string;
+    escrowAccount?: string;
   };
 }
 
@@ -675,7 +676,7 @@ async function startServer() {
 
   app.post("/api/admin/users/:uid/deposit-details", (req, res) => {
     const { uid } = req.params;
-    const { paypal, cashapp, zelle, bitcoin, bankInfo } = req.body;
+    const { paypal, cashapp, zelle, bitcoin, bankInfo, escrowAccount } = req.body;
     const user = users.find(u => u.uid === uid);
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -684,7 +685,8 @@ async function startServer() {
       cashapp,
       zelle,
       bitcoin,
-      bankInfo
+      bankInfo,
+      escrowAccount
     };
 
     adminLogs.unshift({

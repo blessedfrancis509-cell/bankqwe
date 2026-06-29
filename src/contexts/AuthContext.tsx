@@ -6,6 +6,9 @@ interface User {
   displayName: string;
   role: 'admin' | 'user';
   photoURL?: string;
+  ssn?: string;
+  phone?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -142,8 +145,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const users = await res.json();
         const updated = users.find((u: any) => u.uid === uid);
         if (updated) {
-          const { password, ssn, depositDetails, ...safeUser } = updated;
-          setUser(safeUser);
+          const { password, depositDetails, ...safeUser } = updated;
+          setUser(safeUser as User);
           setUserRole(safeUser.role);
           setIsAdmin(safeUser.role === 'admin');
           localStorage.setItem('new_age_user', JSON.stringify(safeUser));

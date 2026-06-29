@@ -14,14 +14,44 @@
   --color-border-subtle: #e2e8f0;
 }
 
+:root {
+  --app-bg: #f8fafc;
+  --app-surface: #ffffff;
+  --app-text: #1e293b;
+  --app-text-muted: #64748b;
+  --app-border: #e2e8f0;
+  --app-sidebar: #ffffff;
+  --app-splash-bg: #ffffff;
+  --app-splash-text: #1e293b;
+  --app-input-bg: #ffffff;
+  --app-input-border: #e2e8f0;
+}
+
+html.dark {
+  --app-bg: #0f172a;
+  --app-surface: #1e293b;
+  --app-text: #f1f5f9;
+  --app-text-muted: #94a3b8;
+  --app-border: #334155;
+  --app-sidebar: #0f172a;
+  --app-splash-bg: #0f172a;
+  --app-splash-text: #f1f5f9;
+  --app-input-bg: #1e293b;
+  --app-input-border: #334155;
+}
+
 @layer base {
   body {
-    @apply bg-surface-light text-text-main font-sans antialiased;
+    @apply font-sans antialiased;
+    background-color: var(--app-bg);
+    color: var(--app-text);
   }
 }
 
 .sleek-card {
-  @apply bg-white border border-border-subtle rounded-2xl p-6 shadow-sm;
+  background-color: var(--app-surface);
+  border-color: var(--app-border);
+  @apply border rounded-2xl p-6 shadow-sm;
 }
 
 .sleek-button-primary {
@@ -29,7 +59,14 @@
 }
 
 .sleek-button-secondary {
-  @apply bg-white border border-border-subtle px-6 py-3 rounded-xl hover:bg-surface-light transition-all font-semibold text-text-main;
+  background-color: var(--app-surface);
+  border-color: var(--app-border);
+  color: var(--app-text);
+  @apply border px-6 py-3 rounded-xl transition-all font-semibold;
+}
+
+.sleek-button-secondary:hover {
+  background-color: var(--app-border);
 }
 
 .sleek-nav-item {
@@ -41,6 +78,16 @@
 }
 
 .sleek-nav-item-inactive {
-  @apply text-text-muted hover:bg-surface-light flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors;
+  color: var(--app-text-muted);
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors;
+}
+
+.sleek-nav-item-inactive:hover {
+  background-color: var(--app-border);
+}
+
+.app-sidebar {
+  background-color: var(--app-sidebar);
+  border-color: var(--app-border);
 }
 

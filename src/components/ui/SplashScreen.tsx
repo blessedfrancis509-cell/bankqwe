@@ -1,25 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Star } from 'lucide-react';
 
 export const SplashScreen = () => {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    setDark(localStorage.getItem('na_dark_mode') === 'true');
+  }, []);
+
   return (
     <motion.div 
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-8 text-slate-900"
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center p-8 ${
+        dark ? 'bg-slate-900 text-slate-100' : 'bg-white text-slate-900'
+      }`}
     >
       <div className="relative mb-12">
         <motion.div 
           initial={{ scale: 0, rotate: -45 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 260,
-            damping: 20,
-            delay: 0.2
-          }}
+          transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
           className="w-24 h-24 bg-blue-900 rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/20 border-4 border-white"
         >
           <Star className="text-white" size={40} fill="currentColor" />
@@ -41,18 +44,14 @@ export const SplashScreen = () => {
       >
         <h1 className="text-2xl font-black tracking-[0.25em] mb-1 uppercase text-blue-900 leading-none">New Age</h1>
         <h1 className="text-2xl font-black tracking-[0.25em] mb-4 uppercase text-red-600">Of America</h1>
-        <p className="text-slate-500 font-bold tracking-[0.4em] uppercase text-[9px]">Continental Private Wealth</p>
+        <p className={`font-bold tracking-[0.4em] uppercase text-[9px] ${dark ? 'text-slate-400' : 'text-slate-500'}`}>Continental Private Wealth</p>
       </motion.div>
 
-      <div className="absolute bottom-16 w-48 h-1 bg-slate-100 rounded-full overflow-hidden">
+      <div className={`absolute bottom-16 w-48 h-1 rounded-full overflow-hidden ${dark ? 'bg-slate-700' : 'bg-slate-100'}`}>
         <motion.div 
           initial={{ x: '-100%' }}
           animate={{ x: '100%' }}
-          transition={{ 
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           className="w-1/2 h-full bg-blue-900 rounded-full"
         />
       </div>
