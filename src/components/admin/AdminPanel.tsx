@@ -972,6 +972,17 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
                       className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-850 text-xs text-slate-800"
                     />
                   </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Current Balance Override</label>
+                    <input 
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={newBalance}
+                      onChange={(e) => setNewBalance(e.target.value)}
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-850 text-xs text-slate-800"
+                    />
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Override Credit Limit</label>
