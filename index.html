@@ -16,7 +16,13 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/sw.js?v=2').catch(() => {});
+          navigator.serviceWorker.ready.then(reg => {
+            if (reg.active) reg.active.postMessage('skipWaiting');
+          });
+        });
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
         });
       }
     </script>
