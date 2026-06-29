@@ -25,16 +25,14 @@ import {
   Lock,
   Star,
   ShieldCheck,
-  CreditCard,
-  Users,
   Key,
-  Bell,
   Globe,
   FileText,
   Clock,
   CheckCircle2,
   AlertTriangle,
-  ArrowUpRight
+  ArrowUpRight,
+  User
 } from 'lucide-react';
 import { api } from './services/api';
 import { Account, Transaction, Bill, AppUser, BankCard } from './types';
