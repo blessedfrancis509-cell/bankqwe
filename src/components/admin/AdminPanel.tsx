@@ -250,6 +250,7 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
   const [editUserPassword, setEditUserPassword] = useState('');
   const [editUserRole, setEditUserRole] = useState<'user' | 'admin'>('user');
   const [editUserPhoto, setEditUserPhoto] = useState('');
+  const [editUserCreatedAt, setEditUserCreatedAt] = useState('');
   const [deleteConfirmUid, setDeleteConfirmUid] = useState<string | null>(null);
 
   const fetchAll = async () => {
@@ -292,6 +293,7 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
             setEditUserPassword(usr.password || '');
             setEditUserRole(usr.role || 'user');
             setEditUserPhoto(usr.photoURL || '');
+            setEditUserCreatedAt(usr.createdAt ? usr.createdAt.split('T')[0] : '');
           }
 
           // Fetch user's deposit details
@@ -351,6 +353,7 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
         setEditUserPassword(usr.password || '');
         setEditUserRole(usr.role || 'user');
         setEditUserPhoto(usr.photoURL || '');
+        setEditUserCreatedAt(usr.createdAt ? usr.createdAt.split('T')[0] : '');
       }
 
       if (switchTab) setActiveView('accounts');
@@ -464,7 +467,8 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
           ssn: editUserSsn,
           password: editUserPassword,
           role: editUserRole,
-          photoURL: editUserPhoto || undefined
+          photoURL: editUserPhoto || undefined,
+          createdAt: editUserCreatedAt ? new Date(editUserCreatedAt).toISOString() : undefined
         })
       });
       if (!res.ok) {
@@ -500,9 +504,11 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
         const err = await res.json();
         throw new Error(err.error || 'Update failed');
       }
+      const updated = await res.json();
+      setAccountCreatedAt(updated.createdAt ? updated.createdAt.split('T')[0] : '');
       addLog(`Updated account ${selectedAccId}: ${editName}`);
       showStatus('Entity profile updated successfully');
-      fetchAll();
+      await fetchAll();
       props.onMutation?.();
     } catch (err: any) {
       showStatus(err.message || 'Failed to update entity', 'error');
@@ -1074,13 +1080,22 @@ export const AdminPanel = (props: { onMutation?: () => void }) => {
                          <option value="admin">ADMIN (Executive Ops)</option>
                        </select>
                      </div>
-                   </div>
-                   <div>
-                     <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1 block">Profile Photo URL</label>
-                     <div className="flex gap-3 items-center">
-                       {editUserPhoto && (
-                         <img src={editUserPhoto} alt="Preview" className="w-10 h-10 rounded-full object-cover border border-indigo-200 shrink-0" />
-                       )}
+                    </div>
+                     <div>
+                       <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1 block">User Creation Date</label>
+                      <input 
+                        type="date"
+                        value={editUserCreatedAt}
+                        onChange={(e) => setEditUserCreatedAt(e.target.value)}
+                        className="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1 block">Profile Photo URL</label>
+                      <div className="flex gap-3 items-center">
+                        {editUserPhoto && (
+                          <img src={editUserPhoto} alt="Preview" className="w-10 h-10 rounded-full object-cover border border-indigo-200 shrink-0" />
+                        )}
                        <input 
                          type="text"
                          placeholder="https://example.com/photo.jpg or paste image"

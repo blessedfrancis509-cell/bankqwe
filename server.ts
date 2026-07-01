@@ -509,7 +509,7 @@ async function startServer() {
   // Admin User Profile Modification Endpoint
   app.patch("/api/admin/users/:uid", (req, res) => {
     const { uid } = req.params;
-    const { email, password, displayName, role, ssn, phone, photoURL } = req.body;
+    const { email, password, displayName, role, ssn, phone, photoURL, createdAt } = req.body;
     const user = users.find(u => u.uid === uid);
     if (!user) {
       return res.status(404).json({ error: "Target client entity not found" });
@@ -522,6 +522,11 @@ async function startServer() {
     if (ssn !== undefined) user.ssn = ssn;
     if (phone !== undefined) user.phone = phone;
     if (photoURL !== undefined) user.photoURL = photoURL;
+    if (createdAt !== undefined) {
+      user.createdAt = typeof createdAt === 'string' && createdAt.includes('T')
+        ? createdAt
+        : new Date(createdAt).toISOString();
+    }
 
     adminLogs.unshift({
       id: Math.random().toString(36).substr(2, 9),
@@ -780,9 +785,14 @@ async function startServer() {
     }
     if (status !== undefined) account.status = status;
     if (depositRestricted !== undefined) account.depositRestricted = !!depositRestricted;
-    if (createdAt !== undefined) account.createdAt = createdAt;
+    if (createdAt !== undefined) {
+      account.createdAt = typeof createdAt === 'string' && createdAt.includes('T')
+        ? createdAt
+        : new Date(createdAt).toISOString();
+    }
     if (flagged !== undefined) account.flagged = !!flagged;
     
+    saveDb();
     res.json(account);
   });
 
@@ -821,6 +831,7 @@ async function startServer() {
       account.balance += Number(amount);
     }
     
+    saveDb();
     res.status(201).json(newTransaction);
   });
 
@@ -841,6 +852,7 @@ async function startServer() {
     if (date !== undefined) tx.date = new Date(date).toISOString();
     if (status !== undefined) tx.status = status;
 
+    saveDb();
     res.json(tx);
   });
 
@@ -851,6 +863,7 @@ async function startServer() {
     const account = accounts.find(a => a.id === id);
     if (!account) return res.status(404).json({ error: "Account not found" });
     if (flagged !== undefined) account.flagged = !!flagged;
+    saveDb();
     res.json(account);
   });
 
@@ -861,6 +874,7 @@ async function startServer() {
     const account = accounts.find(a => a.id === id);
     if (!account) return res.status(404).json({ error: "Account not found" });
     if (createdAt !== undefined) account.createdAt = new Date(createdAt).toISOString();
+    saveDb();
     res.json(account);
   });
 
